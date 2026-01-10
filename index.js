@@ -1,0 +1,36 @@
+require("dotenv").config();
+
+const { PrismaClient } = require("@prisma/client");
+const { PrismaPg } = require("@prisma/adapter-pg");
+const { Pool } = require("pg");
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
+
+const adapter = new PrismaPg(pool);
+
+const prisma = new PrismaClient({
+  adapter,
+});
+
+async function main() {
+  const user = await prisma.user.create({
+    data: {
+      email: "kheng@example.com",
+      name: "Kheng",
+    },
+  });
+
+  const users = await prisma.user.findMany();
+
+  console.log("Created user:", user);
+  console.log("All users:", users);
+}
+
+main()
+  .catch(console.error)
+  .finally(async () => {
+    await prisma.$disconnect();
+    await pool.end();
+  });
