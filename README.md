@@ -57,6 +57,8 @@ Install the project dependencies defined in `package.json`.
 
 ```bash
 npm init -y
+npm install prisma tsx @types/pg --save-dev
+npm install @prisma/client @prisma/adapter-pg dotenv pg
 ```
 
 ### 5. Apply Database Migrations
