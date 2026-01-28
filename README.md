@@ -47,7 +47,7 @@ DATABASE_URL="postgresql://prisma:prisma123@127.0.0.1:5432/mydb?schema=public"
 Run the following command to start the PostgreSQL database container in the background.
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 This command uses the `docker-compose.yml` file to create and run a PostgreSQL 16 container named `postgres_db`.
 
@@ -56,7 +56,7 @@ This command uses the `docker-compose.yml` file to create and run a PostgreSQL 1
 Install the project dependencies defined in `package.json`.
 
 ```bash
-npm install
+npm init -y
 ```
 
 ### 5. Apply Database Migrations
