@@ -119,10 +119,14 @@ model User {
   createdAt DateTime @default(now())
 }
 ```
+menage Prisma Model
+```
+  npm prisma studio 
+```
 
 ## Stopping the Database
 
 To stop and remove the PostgreSQL container and its associated volume, run:
 
 ```bash
-docker-compose down --volumes
+docker-compose down --volume
