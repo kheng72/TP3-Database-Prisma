@@ -11,76 +11,65 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
 model User {
-  id        String   @id
-  username  String   @unique
-  password  String
-  role      String
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
   createdAt DateTime @default(now())
-
-  auditLogs AuditLog[]
 }
 
-model Zone {
-  id    String @id
-  name  String @unique
+model User {
+  id         Int          @id @default(autoincrement())
+  username   String       @unique @db.VarChar(50)
+  password   String       @db.VarChar(255)
+  lineUid    String?      @unique @map("line_uid") @db.VarChar(100)
 
-  devices Device[]
+  attendances Attendance[]
+
+  @@map("users")
 }
 
-model Ad {
-  id        String   @id
-  name      String
-  url       String
-  type      String
-  createdAt DateTime @default(now())
+model Subject {
+  id       Int            @id @default(autoincrement())
+  name     String         @db.VarChar(255)
+  period   String?        @db.VarChar(50)
 
-  devices    Device[]
-  activities Activity[]
+  sessions ClassSession[]
 }
 
-model Device {
-  id          String   @id
-  macAddress  String   @unique
-  deviceName  String
-  roomNumber  String
-  ipAddress   String
-  status      String
-  adUrl       String
-  lastCommand String
-  lastSeen    DateTime?
+model Room {
+  id       Int          @id @default(autoincrement())
+  roomName String       @map("room_name") @db.VarChar(100)
 
-  zoneId String
-  adId   String?
-
-  zone Zone @relation(fields: [zoneId], references: [id])
-  ad   Ad?  @relation(fields: [adId], references: [id])
-
-  scanLogs ScanLog[]
+  devices  DeviceIoT[]
+  sessions ClassSession[]
 }
 
-model Activity {
-  id          String   @id
-  title       String
-  description String
-  imageUrl    String
-  startTime   DateTime
-  endTime     DateTime
+model DeviceIoT {
+  id        Int          @id @default(autoincrement())
+  roomId    Int          @map("room_id")
+  deviceName String?     @db.VarChar(100)
 
-  adId String?
-
-  ad        Ad?        @relation(fields: [adId], references: [id])
-  scanLogs  ScanLog[]
+  room      Room         @relation(fields: [roomId], references: [id])
+  sessions  ClassSession[]
 }
 
-model ScanLog {
-  id         Int      @id @default(autoincrement())
-  deviceId   String
-  activityId String?
-  scannedAt  DateTime @default(now())
+model ClassSession {
+  id        Int        @id @default(autoincrement())
+  subjectId Int        @map("subject_id")
+  roomId    Int        @map("room_id")
+  deviceId  Int        @map("device_id")
 
-  device   Device   @relation(fields: [deviceId], references: [id])
-  activity Activity? @relation(fields: [activityId], references: [id])
+  qrToken   String     @unique @map("qr_token") @db.VarChar(255)
+  startTime DateTime   @map("start_time")
+  endTime   DateTime   @map("end_time")
+
+  subject   Subject    @relation(fields: [subjectId], references: [id])
+  room      Room       @relation(fields: [roomId], references: [id])
+  device    DeviceIoT  @relation(fields: [deviceId], references: [id])
+
+  attendances Attendance[]
 }
 
 model AuditLog {

@@ -8,14 +8,25 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "[![Ask DeepWiki](https://devin.ai/assets/askdeepwiki.png)](https://deepwiki.com/kheng72/TP3-Database-Prisma.git)",
   "devDependencies": {
-    "prisma": "^7.2.0"
+    "@types/pg": "^8.16.0",
+    "prisma": "^7.3.0",
+    "tsx": "^4.21.0"
   },
   "dependencies": {
-    "@prisma/adapter-pg": "^7.2.0",
-    "@prisma/client": "^7.2.0",
+    "@prisma/adapter-pg": "^7.3.0",
+    "@prisma/client": "^7.3.0",
     "dotenv": "^17.2.3",
-    "pg": "^8.16.3"
-  }
+    "pg": "^8.17.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kheng72/TP3-Database-Prisma.git"
+  },
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/kheng72/TP3-Database-Prisma/issues"
+  },
+  "homepage": "https://github.com/kheng72/TP3-Database-Prisma#readme"
 }
