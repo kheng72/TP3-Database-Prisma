@@ -11,86 +11,70 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
 model User {
-  id        String   @id
-  username  String   @unique
-  password  String
-  role      String
-  createdAt DateTime @default(now())
+  id         Int          @id @default(autoincrement())
+  username   String       @unique @db.VarChar(50)
+  password   String       @db.VarChar(255)
+  lineUid    String?      @unique @map("line_uid") @db.VarChar(100)
 
-  auditLogs AuditLog[]
+  attendances Attendance[]
+
+  @@map("users")
 }
 
-model Zone {
-  id    String @id
-  name  String @unique
+model Subject {
+  id       Int            @id @default(autoincrement())
+  name     String         @db.VarChar(255)
+  period   String?        @db.VarChar(50)
 
-  devices Device[]
+  sessions ClassSession[]
 }
 
-model Ad {
-  id        String   @id
-  name      String
-  url       String
-  type      String
-  createdAt DateTime @default(now())
+model Room {
+  id       Int          @id @default(autoincrement())
+  roomName String       @map("room_name") @db.VarChar(100)
 
-  devices    Device[]
-  activities Activity[]
+  devices  DeviceIoT[]
+  sessions ClassSession[]
 }
 
-model Device {
-  id          String   @id
-  macAddress  String   @unique
-  deviceName  String
-  roomNumber  String
-  ipAddress   String
-  status      String
-  adUrl       String
-  lastCommand String
-  lastSeen    DateTime?
+model DeviceIoT {
+  id        Int          @id @default(autoincrement())
+  roomId    Int          @map("room_id")
+  deviceName String?     @db.VarChar(100)
 
-  zoneId String
-  adId   String?
-
-  zone Zone @relation(fields: [zoneId], references: [id])
-  ad   Ad?  @relation(fields: [adId], references: [id])
-
-  scanLogs ScanLog[]
+  room      Room         @relation(fields: [roomId], references: [id])
+  sessions  ClassSession[]
 }
 
-model Activity {
-  id          String   @id
-  title       String
-  description String
-  imageUrl    String
-  startTime   DateTime
-  endTime     DateTime
+model ClassSession {
+  id        Int        @id @default(autoincrement())
+  subjectId Int        @map("subject_id")
+  roomId    Int        @map("room_id")
+  deviceId  Int        @map("device_id")
 
-  adId String?
+  qrToken   String     @unique @map("qr_token") @db.VarChar(255)
+  startTime DateTime   @map("start_time")
+  endTime   DateTime   @map("end_time")
 
-  ad        Ad?        @relation(fields: [adId], references: [id])
-  scanLogs  ScanLog[]
+  subject   Subject    @relation(fields: [subjectId], references: [id])
+  room      Room       @relation(fields: [roomId], references: [id])
+  device    DeviceIoT  @relation(fields: [deviceId], references: [id])
+
+  attendances Attendance[]
 }
 
-model ScanLog {
-  id         Int      @id @default(autoincrement())
-  deviceId   String
-  activityId String?
-  scannedAt  DateTime @default(now())
+model Attendance {
+  id              Int          @id @default(autoincrement())
+  userId          Int          @map("user_id")
+  classSessionId  Int          @map("class_session_id")
 
-  device   Device   @relation(fields: [deviceId], references: [id])
-  activity Activity? @relation(fields: [activityId], references: [id])
-}
+  checkinTime     DateTime     @map("checkin_time")
+  status          String?      @db.VarChar(20)
 
-model AuditLog {
-  id        Int      @id @default(autoincrement())
-  userId    String
-  username  String
-  action    String
-  targetId  String
-  details   Json
-  createdAt DateTime @default(now())
+  user            User         @relation(fields: [userId], references: [id])
+  classSession    ClassSession @relation(fields: [classSessionId], references: [id])
 
-  user User @relation(fields: [userId], references: [id])
+  @@unique([userId, classSessionId])
 }
