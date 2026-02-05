@@ -12,13 +12,13 @@ datasource db {
   provider = "postgresql"
 }
 
-
 model User {
   id        Int          @id @default(autoincrement())
   username  String       @unique @db.VarChar(50)
   password  String       @db.VarChar(255)
   lineUid   String?      @unique @map("line_uid") @db.VarChar(100)
   role      String       @db.VarChar(20) // admin | user
+  img       String?      @db.Text
 
   attendances Attendance[]
 
