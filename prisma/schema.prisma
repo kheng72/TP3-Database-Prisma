@@ -4,6 +4,7 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -12,69 +13,128 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id         Int          @id @default(autoincrement())
-  username   String       @unique @db.VarChar(50)
-  password   String       @db.VarChar(255)
-  lineUid    String?      @unique @map("line_uid") @db.VarChar(100)
 
-  attendances Attendance[]
+model User {
+  id        Int     @id @default(autoincrement())
+  username  String  @unique @db.VarChar(50)
+  password  String  @db.VarChar(255)
+  // lineUid   String? @unique @map("line_uid") @db.VarChar(100)
+
+  role      String  @db.VarChar(20) // admin | user
+  img       String? @db.Text
+
+  // attendances Attendance[]
 
   @@map("users")
 }
 
-model Subject {
-  id       Int            @id @default(autoincrement())
-  name     String         @db.VarChar(255)
-  period   String?        @db.VarChar(50)
+model Building {
+  buildingCode String @id @map("building_code") @db.VarChar(20)
+  buildingName String @map("building_name") @db.VarChar(200)
 
-  sessions ClassSession[]
+  rooms Room[]
+
+  @@map("building")
 }
 
 model Room {
-  id       Int          @id @default(autoincrement())
-  roomName String       @map("room_name") @db.VarChar(100)
+  roomCode     String  @id @map("room_code") @db.VarChar(10)
+  buildingCode String? @map("building_code") @db.VarChar(20)
+  roomFloor    String? @map("room_floor") @db.VarChar(10)
+  roomCapacity String? @map("room_capacity") @db.VarChar(13)
+  roomDesc     String? @map("room_desc") @db.VarChar(47)
 
-  devices  DeviceIoT[]
-  sessions ClassSession[]
+  building Building? @relation(fields: [buildingCode], references: [buildingCode])
+
+  device    DeviceIoT?
+  sessions  ClassSession[]
+  checkins  Checkin[]
+
+  @@map("room")
 }
 
 model DeviceIoT {
-  id        Int          @id @default(autoincrement())
-  roomId    Int          @map("room_id")
-  deviceName String?     @db.VarChar(100)
+  id         Int     @id @default(autoincrement())
+  roomId     String  @unique @map("room_id") @db.VarChar(10)
+  deviceName String? @map("device_name") @db.VarChar(100)
 
-  room      Room         @relation(fields: [roomId], references: [id])
-  sessions  ClassSession[]
+  room       Room          @relation(fields: [roomId], references: [roomCode])
+  sessions   ClassSession[]
+
+  @@map("device_iot")
 }
 
 model ClassSession {
-  id        Int        @id @default(autoincrement())
-  subjectId Int        @map("subject_id")
-  roomId    Int        @map("room_id")
-  deviceId  Int        @map("device_id")
+  id           Int      @id @default(autoincrement())
 
-  qrToken   String     @unique @map("qr_token") @db.VarChar(255)
-  startTime DateTime   @map("start_time")
-  endTime   DateTime   @map("end_time")
+  subjectId    Int      @map("subject_id")
+  roomId       String   @map("room_id") @db.VarChar(10)
+  deviceId     Int      @map("device_id")
 
-  subject   Subject    @relation(fields: [subjectId], references: [id])
-  room      Room       @relation(fields: [roomId], references: [id])
-  device    DeviceIoT  @relation(fields: [deviceId], references: [id])
+  qrToken      String   @unique @map("qr_token") @db.VarChar(255)
+  startTime    DateTime @map("start_time")
+  endTime      DateTime @map("end_time")
+  maxStudents  Int      @map("max_students")
 
-  attendances Attendance[]
+  // subject     Subject    @relation(fields: [subjectId], references: [id])
+  room        Room       @relation(fields: [roomId], references: [roomCode])
+  device      DeviceIoT  @relation(fields: [deviceId], references: [id])
+
+  // attendances Attendance[]
+
+  @@map("class_session")
 }
 
-model Attendance {
-  id              Int          @id @default(autoincrement())
-  userId          Int          @map("user_id")
-  classSessionId  Int          @map("class_session_id")
+model Student {
+  nationalId String  @id @map("national_id") @db.VarChar(13)
 
-  checkinTime     DateTime     @map("checkin_time")
-  status          String?      @db.VarChar(20)
+  prefix     String? @db.VarChar(20)
+  fname      String? @db.VarChar(50)
+  lname      String? @db.VarChar(50)
 
-  user            User         @relation(fields: [userId], references: [id])
-  classSession    ClassSession @relation(fields: [classSessionId], references: [id])
+  userId     String? @map("user_id") @db.VarChar(30)
+  major      String? @db.VarChar(100)
 
-  @@unique([userId, classSessionId])
+  checkins   Checkin[]
+
+  @@map("student")
 }
+
+model Checkin {
+  id         Int       @id @default(autoincrement())
+  nationalId String    @map("national_id") @db.VarChar(13)
+  roomCode   String    @map("room_code") @db.VarChar(10)
+  checkIn    DateTime? @map("check_in")
+  checkOut   DateTime? @map("check_out")
+
+  student Student @relation(fields: [nationalId], references: [nationalId])
+  room    Room    @relation(fields: [roomCode], references: [roomCode])
+
+  @@index([nationalId])
+  @@index([roomCode])
+  @@index([checkIn])
+
+  @@map("checkin")
+}
+
+// model Subject {
+//   id       Int      @id @default(autoincrement())
+//   name     String   @db.VarChar(255)
+//   period   String?  @db.VarChar(50)
+//
+//   sessions ClassSession[]
+// }
+
+// model Attendance {
+//   id             Int          @id @default(autoincrement())
+//   userId         Int          @map("user_id")
+//   classSessionId Int          @map("class_session_id")
+//
+//   checkinTime    DateTime     @map("checkin_time")
+//   status         String?      @db.VarChar(20)
+//
+//   user           User         @relation(fields: [userId], references: [id])
+//   classSession   ClassSession @relation(fields: [classSessionId], references: [id])
+//
+//   @@unique([userId, classSessionId])
+// }
