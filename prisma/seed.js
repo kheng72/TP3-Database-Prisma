@@ -1,8 +1,6 @@
 // เราจะใช้คำสั่ง `npx prisma db seed` เพื่อรันไฟล์นี้
-
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient({});
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
 
 async function main() {
 
@@ -126,75 +124,14 @@ async function main() {
     skipDuplicates: true
   });
 
-  // ---------- STUDENT ----------
-  // await prisma.student.createMany({
-  //   data: [
-  //     {
-  //       nationalId: "xxxxxxxxxxxxx",
-  //       prefix: "นางสาว",
-  //       fname: "ณิชาภัทร",
-  //       lname: "ถาวร",
-  //       userId: "64620009",
-  //       major: "หลักสูตรบริหารธุรกิจมหาบัณฑิต สาขาวิชาบริหารธุรกิจ"
-  //     },
-  //     {
-  //       nationalId: "xxxxxxxxxxxxx",
-  //       prefix: "นาย",
-  //       fname: "กอบชัย",
-  //       lname: "อากาศอำนวย",
-  //       userId: "64205003",
-  //       major: "วิศวกรรมเครื่องกล ปวส."
-  //     }
-  //   ]
-  // });
-
-  // // ---------- Checkin ----------
-  // await prisma.checkin.createMany({
-  //   data: [
-  //     {
-  //       id: 14,
-  //       nationalId: "3809700050448",
-  //       roomCode: "EE",
-  //       checkIn: new Date("2022-01-20T09:36:41"),
-  //       checkOut: null
-  //     },
-  //     {
-  //       id: 15,
-  //       nationalId: "3840100175870",
-  //       roomCode: "B110",
-  //       checkIn: new Date("2022-01-20T08:29:18"),
-  //       checkOut: null
-  //     },
-  //     {
-  //       id: 16,
-  //       nationalId: "3809700050448",
-  //       roomCode: "B316",
-  //       checkIn: new Date("2022-01-20T15:39:43"),
-  //       checkOut: null
-  //     },
-  //     {
-  //       id: 17,
-  //       nationalId: "3840100175870",
-  //       roomCode: "B316",
-  //       checkIn: new Date("2022-01-20T16:03:34"),
-  //       checkOut: null
-  //     },
-  //     {
-  //       id: 18,
-  //       nationalId: "3809700050448",
-  //       roomCode: "A304",
-  //       checkIn: new Date("2022-01-20T17:33:37"),
-  //       checkOut: null
-  //     }
-  //   ]
-  // });
-
 }
 
 main()
-  .then(() => prisma.$disconnect())
-  .catch((e) => {
-    console.error(e);
-    prisma.$disconnect();
-    process.exit(1);
-  });
+  .then(async () => {
+    await prisma.$disconnect()
+  })
+  .catch(async (e) => {
+    console.error(e)
+    await prisma.$disconnect()
+    process.exit(1)
+  })
