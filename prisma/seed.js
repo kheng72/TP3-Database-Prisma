@@ -1,4 +1,5 @@
 // เราจะใช้คำสั่ง `npx prisma db seed` เพื่อรันไฟล์นี้
+
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
@@ -124,7 +125,7 @@ async function main() {
     skipDuplicates: true
   });
 
-} 
+}
 
 main()
   .then(async () => {
