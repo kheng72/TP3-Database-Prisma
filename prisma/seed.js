@@ -124,7 +124,7 @@ async function main() {
     skipDuplicates: true
   });
 
-}
+} 
 
 main()
   .then(async () => {
