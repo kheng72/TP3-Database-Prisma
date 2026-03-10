@@ -4,28 +4,30 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url = env("DATABASE_URL")
 }
 
 
 model User {
   id        Int     @id @default(autoincrement())
-  username  String  @unique @db.VarChar(50)
+  StudentId String? @unique @db.VarChar(8)
+  prefix     String? @db.VarChar(20)
+  fname      String? @db.VarChar(50)
+  lname      String? @db.VarChar(50)
   password  String  @db.VarChar(255)
   // lineUid   String? @unique @map("line_uid") @db.VarChar(100)
 
   role      String  @db.VarChar(20) // admin | user
   img       String? @db.Text
   createdAt DateTime @default(now())
-
-
+  major      String? @db.VarChar(100)
+  checkins   Checkin[]
   // attendances Attendance[]
 
   @@map("users")
@@ -229,32 +231,31 @@ model ClassSession {
   @@map("class_session")
 }
 
-model Student {
-  nationalId String  @id @map("national_id") @db.VarChar(13)
+// model Student {
 
-  prefix     String? @db.VarChar(20)
-  fname      String? @db.VarChar(50)
-  lname      String? @db.VarChar(50)
+//   prefix     String? @db.VarChar(20)
+//   fname      String? @db.VarChar(50)
+//   lname      String? @db.VarChar(50)
 
-  userId     String? @map("user_id") @db.VarChar(30)
-  major      String? @db.VarChar(100)
+//   userId     String? @map("user_id") @db.VarChar(30)
+//   major      String? @db.VarChar(100)
 
-  checkins   Checkin[]
+//   checkins   Checkin[]
 
-  @@map("student")
-}
+//   @@map("student")
+// }
 
 model Checkin {
   id         Int       @id @default(autoincrement())
-  nationalId String    @map("national_id") @db.VarChar(13)
+  StudentId String    @map("student_id") @db.VarChar(8)
   roomCode   String    @map("room_code") @db.VarChar(10)
   checkIn    DateTime? @map("check_in")
   checkOut   DateTime? @map("check_out")
 
-  student Student @relation(fields: [nationalId], references: [nationalId])
+  student User @relation(fields: [StudentId], references: [StudentId])
   room    Room    @relation(fields: [roomCode], references: [roomCode])
 
-  @@index([nationalId])
+  @@index([StudentId])
   @@index([roomCode])
   @@index([checkIn])
 
